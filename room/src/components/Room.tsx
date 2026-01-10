@@ -6,6 +6,16 @@ import { Model } from "./Model";
 import { AssetData } from "./AssetLibrary";
 import { useNavigate } from "react-router-dom";
 
+interface RoomPreferences {
+  productivityGoal: string;
+  mood: string;
+}
+
+interface RoomProps {
+  preferences: RoomPreferences;
+  onBack: () => void;
+}
+
 // Sample Layouts (Replace with dynamic data from Backend later)
 const SAMPLE_LAYOUT: AssetData[] = [
   { asset_id: "desk1", position: [0, 0, -0.75], rotation: [0, 0, 0] },
@@ -57,8 +67,7 @@ const ENERGETIC_LAYOUT: AssetData[] = [
   { asset_id: "lamp3", position: [-1, 0.5, 1], rotation: [0, 0, 0] },
 ];
 
-export default function Room() {
-  const navigate = useNavigate();
+export function Room({ preferences, onBack }: RoomProps) {
   const [layout, setLayout] = useState<AssetData[]>(SAMPLE_LAYOUT);
 
   async function askGemini() {
@@ -152,7 +161,7 @@ export default function Room() {
         <h2>Room (Debug Mode)</h2>
         <p>Assets Loaded: {layout.length}</p>
         <button onClick={askGemini}>Create Another</button>
-        <button onClick={() => navigate("/")}>Go Back To Start</button>
+        <button>Go Back To Start</button>
       </div>
     </div>
   );
