@@ -6,6 +6,16 @@ import { Model } from './Model';
 import { AssetData } from './AssetLibrary';
 import { useNavigate } from 'react-router-dom';
 
+interface RoomPreferences {
+  productivityGoal: string;
+  mood: string;
+}
+
+interface RoomProps {
+  preferences: RoomPreferences;
+  onBack: () => void;
+}
+
 // Sample Layouts (Replace with dynamic data from Backend later)
 const SAMPLE_LAYOUT: AssetData[] = [
   { asset_id: "desk1", position: [0, 0, -0.75], rotation: [0, 0, 0] },
@@ -57,10 +67,9 @@ const ENERGETIC_LAYOUT: AssetData[] = [
   { asset_id: "lamp3", position: [-1, 0.5, 1], rotation: [0, 0, 0] },
 ];
 
-export default function Room() {
-  const navigate = useNavigate();
+export function Room({ preferences, onBack }: RoomProps) {
   const [layout, setLayout] = useState<AssetData[]>(SAMPLE_LAYOUT);
-    
+
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#1a1a1a" }}>
       <Canvas shadows camera={{ position: [4, 4, 4], fov: 50 }}>
@@ -123,7 +132,6 @@ export default function Room() {
         <div style={{ position: 'absolute', top: 20, left: 20, color: 'white', fontFamily: 'sans-serif' }}>
           <h2>Room (Debug Mode)</h2>
           <p>Assets Loaded: {layout.length}</p>
-          <button onClick={() => navigate(-1)}>Create Another</button>
          </div>
        </div>
     );
