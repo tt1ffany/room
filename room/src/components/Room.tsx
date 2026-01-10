@@ -1,10 +1,10 @@
 // Handles lighting and camera setup for the room scene
-import React, { useState, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
-import { Model } from './Model';
-import { AssetData } from './AssetLibrary';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, Suspense } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
+import { Model } from "./Model";
+import { AssetData } from "./AssetLibrary";
+import { useNavigate } from "react-router-dom";
 
 interface RoomPreferences {
   productivityGoal: string;
@@ -70,6 +70,26 @@ const ENERGETIC_LAYOUT: AssetData[] = [
 export function Room({ preferences, onBack }: RoomProps) {
   const [layout, setLayout] = useState<AssetData[]>(SAMPLE_LAYOUT);
 
+  async function askGemini() {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/generate-room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // body: JSON.stringify({ user_personality: "..." }) // if you add this
+      });
+      console.log("status:", res.status);
+
+      const data = await res.json();
+      console.log("Gemini Response:", data);
+
+      if (data.layoutId === "calm") setLayout(CALM_LAYOUT);
+      else if (data.layoutId === "energetic") setLayout(ENERGETIC_LAYOUT);
+      else setLayout(SAMPLE_LAYOUT);
+    } catch (err) {
+      console.error("Fetch failed:", err);
+    }
+  }
+
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#1a1a1a" }}>
       <Canvas shadows camera={{ position: [4, 4, 4], fov: 50 }}>
@@ -128,11 +148,21 @@ export function Room({ preferences, onBack }: RoomProps) {
         </Suspense>
       </Canvas>
 
-       {/* HUD for Testing */}
-        <div style={{ position: 'absolute', top: 20, left: 20, color: 'white', fontFamily: 'sans-serif' }}>
-          <h2>Room (Debug Mode)</h2>
-          <p>Assets Loaded: {layout.length}</p>
-         </div>
-       </div>
-    );
+      {/* HUD for Testing */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          color: "white",
+          fontFamily: "sans-serif",
+        }}
+      >
+        <h2>Room (Debug Mode)</h2>
+        <p>Assets Loaded: {layout.length}</p>
+        <button onClick={askGemini}>Create Another</button>
+        <button>Go Back To Start</button>
+      </div>
+    </div>
+  );
 }
