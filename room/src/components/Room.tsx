@@ -7,20 +7,28 @@ import { AssetData } from './AssetLibrary';
 
 // Sample Layouts (Replace with dynamic data from Backend later)
 const SAMPLE_LAYOUT: AssetData[] = [
-    { asset_id: 'desk', position: [0, 0, -0.75], rotation: [0, 0, 0] },
-    { asset_id: 'chair', position: [0.5, 0, -0.75], rotation: [0, 3.14, 0] },
-    { asset_id: 'plant', position: [1, 0, -1], rotation: [0, 0, 0] },
-    { asset_id: 'bed', position: [-1.25, 0, 0], rotation: [0, 0, 0] },
-    { asset_id: 'lamp', position: [-1, 0, 1], rotation: [0, 0, 0] },
-    { asset_id: 'rug', position: [-0.5, 0, 0.5], rotation: [0, 0, 0] },
+    { asset_id: 'desk1', position: [0, 0, -0.75], rotation: [0, 0, 0] },
+    { asset_id: 'chair1', position: [0.5, 0, -0.75], rotation: [0, 3.14, 0] },
+    { asset_id: 'plant1', position: [1, 0, -1], rotation: [0, 0, 0] },
+    { asset_id: 'bed1', position: [-1.25, 0, 0], rotation: [0, 0, 0] },
+    { asset_id: 'lamp1', position: [-1, 0, 1], rotation: [0, 0, 0] },
+    { asset_id: 'rug1', position: [-0.5, 0, 0.5], rotation: [0, 0, 0] },
 ]
 
 const CALM_LAYOUT: AssetData[] = [
-    { asset_id: '', position: [0, 0, 0], rotation: [0, 0, 0] },
+    { asset_id: 'desk2', position: [0, 0, -0.75], rotation: [0, 0, 0] },
+    { asset_id: 'chair2', position: [0.5, 0, -0.75], rotation: [0, 3.14, 0] },
+    { asset_id: 'plant2', position: [1, 0, -1], rotation: [0, 0, 0] },
+    { asset_id: 'bed2', position: [-1.25, 0, 0], rotation: [0, 0, 0] },
+    { asset_id: 'lamp2', position: [-1, 0, 1], rotation: [0, 0, 0] },
+    { asset_id: 'rug2', position: [-0.5, 0, 0.5], rotation: [0, 0, 0] },
 ]
-
 const ENERGETIC_LAYOUT: AssetData[] = [
-    { asset_id: '', position: [0, 0, 0], rotation: [0, 0, 0] },
+    { asset_id: 'desk3', position: [0, 0, -0.75], rotation: [0, 0, 0] },
+    { asset_id: 'chair3', position: [0.5, 0, -0.75], rotation: [0, 3.14, 0] },
+    { asset_id: 'plant3', position: [1, 0, -1], rotation: [0, 0, 0] },
+    { asset_id: 'bed3', position: [-1.25, 0, 0], rotation: [0, 0, 0] },
+    { asset_id: 'lamp3', position: [-1, 0, 1], rotation: [0, 0, 0] },
 ]
 
 export function Room() {

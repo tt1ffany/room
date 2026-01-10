@@ -21,7 +21,7 @@ export const ASSET_MAP: Record<string, string> = {
     bed3: '/assets/bedOrange.glb',
     plant3: '/assets/plantLeaves.glb',
     // Add a default to prevent crashing if AI hallucinates an ID
-    default: '/assets/plantCalm.glb',
+    default: '/assets/sample/pottedPlant.glb',
 };
 
 // Types for the data coming from your future Backend
