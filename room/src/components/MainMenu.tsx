@@ -25,6 +25,12 @@ const questions = [
         subtitle: "Set the energy level for your space",
         options: ["Calm", "Energetic"],
     },
+  {
+    id: "lighting",
+    title: "What lighting energy do you want?",
+    subtitle: "Set the lighting for your space",
+    options: ["Warm", "Bold", "Cool"],
+  },
 ];
 
 export function MainMenu({ onComplete }: MainMenuProps) {
