@@ -72,6 +72,7 @@ export default function App() {
           >
             {preferences && (
               <Room
+                key={`${preferences.lighting}-${preferences.mood}-${preferences.productivityGoal}`}
                 preferences={preferences}
                 layoutId={layoutId}
                 explanation={explanation}
