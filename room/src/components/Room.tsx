@@ -4,7 +4,9 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
 import { Model } from "./Model";
 import { AssetData } from "./AssetLibrary";
-import { useNavigate } from "react-router-dom";
+import { Sidebar } from "./Sidebar";
+import { Button } from "./ui/button";
+import { Menu } from "lucide-react";
 
 interface RoomPreferences {
   productivityGoal: string;
@@ -68,7 +70,9 @@ const ENERGETIC_LAYOUT: AssetData[] = [
 ];
 
 export function Room({ preferences, onBack }: RoomProps) {
-  const [layout, setLayout] = useState<AssetData[]>(SAMPLE_LAYOUT);
+  const [layout, setLayout] = useState<AssetData[]>(CALM_LAYOUT);
+  const [timeOfDay, setTimeOfDay] = useState<'morning' | 'evening' | 'night'>('morning');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   async function askGemini() {
     try {
@@ -158,11 +162,32 @@ export function Room({ preferences, onBack }: RoomProps) {
           fontFamily: "sans-serif",
         }}
       >
-        <h2>Room (Debug Mode)</h2>
-        <p>Assets Loaded: {layout.length}</p>
-        <button onClick={askGemini}>Create Another</button>
+        <h2>My Room</h2>
+        {/* <p>Assets Loaded: {layout.length}</p> */}
         <button>Go Back To Start</button>
       </div>
+
+      {/* Menu Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`absolute top-4 left-4 z-30 shadow-lg transition-colors ${timeOfDay === 'night'
+          ? 'bg-slate-800/90 hover:bg-slate-700/90 text-white'
+          : 'bg-white/90 hover:bg-amber-100/60'
+          }`}
+        onClick={() => setIsSidebarOpen(true)}
+      >
+        <Menu className="h-6 w-6" />
+      </Button>
+
+      {/* Sidebar (Menu) */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        timeOfDay={timeOfDay}
+        onTimeChange={setTimeOfDay}
+        onShuffle={askGemini}
+      />
     </div>
   );
 }
