@@ -1,5 +1,5 @@
 // Handles lighting and camera setup for the room scene
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
 import { Model } from "./Model";
@@ -80,8 +80,17 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
     layoutId === "Calm"
       ? CALM_LAYOUT
       : layoutId === "Energetic"
-      ? ENERGETIC_LAYOUT
-      : SAMPLE_LAYOUT;
+        ? ENERGETIC_LAYOUT
+        : SAMPLE_LAYOUT;
+  const [showInfo, setShowInfo] = useState(true);
+
+  // Handle initial fade away of info (quick preview)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowInfo(false);
+    }, 3500); // Show info for 3.5 seconds
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#1a1a1a" }}>
@@ -141,24 +150,44 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
         </Suspense>
       </Canvas>
 
-      {/* HUD for Testing */}
-      <div
-        style={{
-          position: "absolute",
-          top: 20,
-          left: 20,
-          color: "white",
-          fontFamily: "sans-serif",
-        }}
-      >
-        <h2>My Room</h2>
-        <button onClick={onBack}>Go Back To Start</button>
-        <p>Selected Layout: {layoutId}</p>
-        {explanation && <p style={{ maxWidth: 360 }}>{explanation}</p>}
-        {/* <p>Assets Loaded: {layout.length}</p> */}
+      {/* Room Description / Info Button (Tool Tip) */}
+      <div className="absolute top-0 right-0 z-20">
+        {/* Info Button / Tool Tip */}
+        <button
+          onMouseEnter={() => setShowInfo(true)}
+          onMouseLeave={() => setShowInfo(false)}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full
+             bg-black/60 text-white text-sm font-semibold
+             flex items-center justify-center
+             hover:bg-white/80 transition hover:text-black"
+        >
+          i
+        </button>
+
+        {/* Description Box */}
+        <div className={`
+            absolute top-16 right-4 z-10 w-[420px] 
+            bg-white/60 backdrop-blur-md rounded-3xl 
+            text-[#2C2416] text-sm 
+            p-6 shadow-xl border border-[#C8D5BC]/40 
+            transition-all duration-300 ease-out 
+            ${showInfo ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
+          {explanation && <p>{explanation}</p>}
+        </div>
       </div>
 
-      {/* Menu Button */}
+      {/* Create a New Space Button */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-6">
+        <Button
+          onClick={onBack}
+          variant="ghost"
+          className="text-[#5B6B52] hover:text-[#2C2416] hover:bg-white/50"
+        >
+          ← Create a New Space
+        </Button>
+      </div>
+
+      {/* Sidebar Menu Button */}
       <Button
         variant="ghost"
         size="icon"
@@ -177,7 +206,7 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
         onClose={() => setIsSidebarOpen(false)}
         timeOfDay={timeOfDay}
         onTimeChange={setTimeOfDay}
-        // onShuffle={askGemini}
+      // onShuffle={askGemini}
       />
     </div>
   );
