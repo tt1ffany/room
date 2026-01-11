@@ -7,6 +7,7 @@ import { AssetData } from "./AssetLibrary";
 import { Button } from "./ui/button";
 import { Sun, Moon, PanelLeft, PanelLeftClose, Shuffle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { is } from "@react-three/fiber/dist/declarations/src/core/utils";
 const loaderOverlayStyles: React.CSSProperties = {
   position: "fixed",
   top: 0,
@@ -149,16 +150,19 @@ export function Room({
     layoutId === "Calm"
       ? CALM_LAYOUT
       : layoutId === "Energetic"
-        ? ENERGETIC_LAYOUT
-        : SAMPLE_LAYOUT;
+      ? ENERGETIC_LAYOUT
+      : SAMPLE_LAYOUT;
+
   const [showInfo, setShowInfo] = useState(true);
   const [isAppLoading, setIsAppLoading] = useState(true);
+  const [shuffleLoading, setShuffleLoading] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsAppLoading(false);
     }, 2500); // Simulate a 4-second loading time
     return () => clearTimeout(timer);
-  });
+  }, []);
   const [lightsOn, setLightsOn] = useState(true);
   const [lightTemp, setLightTemp] = useState<number>(() =>
     lightingPreferenceToTemp(preferences.lighting)
@@ -189,7 +193,7 @@ export function Room({
   console.log("Current arrangement:", arrange);
 
   const shuffle = async () => {
-    setIsAppLoading(true); // 1. Start the "pretty" loader
+    setShuffleLoading(true); // 1. Start the "pretty" loader
     try {
       const res = await fetch("http://localhost:8000/shuffle-arrangement", {
         method: "POST",
@@ -206,7 +210,7 @@ export function Room({
     } catch (error) {
       console.error("Error fetching shuffled arrangement:", error);
     } finally {
-      setIsAppLoading(false); // 4. Stop the loader
+      setShuffleLoading(false); // 4. Stop the loader
     }
   };
 
@@ -214,6 +218,51 @@ export function Room({
     <div className="relative min-h-screen w-full flex">
       <AnimatePresence>
         {isAppLoading && (
+          <motion.div
+            key="preloader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#E8E4DD]"
+          >
+            {/* A calming, pulsing logo or icon */}
+            <motion.div
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.5, 1, 0.5],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 2.5,
+                ease: "easeInOut",
+              }}
+              className="mb-8"
+            >
+              <h2 className="text-3xl font-light tracking-[0.2em] text-[#5B6B52]">
+                RUMO
+              </h2>
+            </motion.div>
+
+            <div className="w-32 h-[1px] bg-[#D4CFBF] overflow-hidden">
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: "100%" }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 1.5,
+                  ease: "linear",
+                }}
+                className="w-full h-full bg-[#6B8E5F]"
+              />
+            </div>
+            <p className="mt-4 text-xs tracking-widest text-[#5B6B52]/60 uppercase">
+              Finding your balance
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {shuffleLoading && (
           <motion.div
             key="preloader"
             initial={{ opacity: 1 }}
