@@ -1,11 +1,13 @@
+import { on } from "events";
 import { Button } from "./ui/button";
-import { X, Sun, Sunset, Moon } from "lucide-react";
+import { X, Sun, Sunset, Moon, Shuffle } from "lucide-react";
 
 interface SidebarProps {
     isOpen: boolean;
     onClose: () => void;
     timeOfDay: 'morning' | 'evening' | 'night';
     onTimeChange: (time: 'morning' | 'evening' | 'night') => void;
+    onShuffle: () => void;
 }
 
 // Theme configurations for each time of day
@@ -45,7 +47,7 @@ const themes = {
     },
 };
 
-export function Sidebar({ isOpen, onClose, timeOfDay, onTimeChange }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, timeOfDay, onTimeChange, onShuffle }: SidebarProps) {
     const theme = themes[timeOfDay];
 
     return (
@@ -93,6 +95,17 @@ export function Sidebar({ isOpen, onClose, timeOfDay, onTimeChange }: SidebarPro
                             <Moon className="h-4 w-4" />
                         </Button>
                     </div>
+                </div>
+
+                {/* Shuffle Room Button */}
+                <div className={`px-4 pt-4 border-t ${theme.border}`}>
+                    <Button
+                        className={`w-full ${theme.button}`}
+                        onClick={onShuffle}
+                    >
+                        <Shuffle className="h-4 w-4 mr-2" />
+                        Shuffle Room
+                    </Button>
                 </div>
             </div>
         </div>

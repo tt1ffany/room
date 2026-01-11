@@ -162,9 +162,8 @@ export function Room({ preferences, onBack }: RoomProps) {
           fontFamily: "sans-serif",
         }}
       >
-        <h2>Room (Debug Mode)</h2>
-        <p>Assets Loaded: {layout.length}</p>
-        <button onClick={askGemini}>Create Another</button>
+        <h2>My Room</h2>
+        {/* <p>Assets Loaded: {layout.length}</p> */}
         <button>Go Back To Start</button>
       </div>
 
@@ -187,6 +186,7 @@ export function Room({ preferences, onBack }: RoomProps) {
         onClose={() => setIsSidebarOpen(false)}
         timeOfDay={timeOfDay}
         onTimeChange={setTimeOfDay}
+        onShuffle={askGemini}
       />
     </div>
   );
