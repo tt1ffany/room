@@ -254,6 +254,31 @@ export function Room({
             </div>
           </div>
 
+          {/* Lights Toggle Switch */}
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl">
+            <span
+              className={`text-sm font-medium transition ${timeOfDay === "day" ? "text-[#5B6B52]" : "text-[#A8B8A0]"
+                }`}
+            >
+              Lights
+            </span>
+
+            <button
+              onClick={() => setLightsOn(prev => !prev)}
+              className={`relative w-12 h-6 rounded-full transition-colors duration-300
+      ${lightsOn
+                  ? "bg-gradient-to-br from-[#6B8E5F] to-[#8BA878]"
+                  : "bg-gray-400/50"
+                }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white
+        transition-transform duration-300
+        ${lightsOn ? "translate-x-6" : "translate-x-0"}`}
+              />
+            </button>
+          </div>
+
           {/* Shuffle Room Button */}
           <button
             onClick={shuffle}
@@ -268,18 +293,6 @@ export function Room({
             Shuffle Room
           </button>
         </div>
-
-        {/* Lights Toggle Button */}
-        <button
-          onClick={onToggleLights}
-          className={`px-4 py-3 rounded-xl transition ${lightsOn
-              ? "bg-gradient-to-br from-yellow-400 to-amber-500 text-white"
-              : "bg-white/40 text-gray-600"
-            }`}
-        >
-          {lightsOn ? "Lights On" : "Lights Off"}
-        </button>
-
 
         {/* Create a New Space Button at Bottom */}
         <div
@@ -395,6 +408,28 @@ export function Room({
               opacity={0.5}
               far={1}
             />
+
+            {/* Artificial Lighting */}
+            {lightsOn && (
+              <>
+                <pointLight
+                  position={[-1, 1.2, 1]} // near lamp
+                  intensity={timeOfDay === "night" ? 1.4 : 0.5}
+                  distance={4}
+                  decay={2}
+                  color={LIGHT_COLOURS[preferences.lighting as keyof typeof LIGHT_COLOURS]}
+                  castShadow
+                />
+
+                <pointLight
+                  position={[0.5, 1.1, -0.8]} // desk lamp
+                  intensity={timeOfDay === "night" ? 1.0 : 0.35}
+                  distance={3}
+                  decay={2}
+                  color={LIGHT_COLOURS[preferences.lighting as keyof typeof LIGHT_COLOURS]}
+                />
+              </>
+            )}
             <Environment preset={timeOfDay === "day" ? "city" : "night"} />
             <OrbitControls makeDefault />
           </Suspense>
