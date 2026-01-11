@@ -30,6 +30,12 @@ const SAMPLE_LAYOUT: AssetData[] = [
   { asset_id: "bed1", position: [-1.25, 0, 0], rotation: [0, 0, 0] },
   { asset_id: "lamp1", position: [-1, 0, 1], rotation: [0, 0, 0] },
   { asset_id: "rug1", position: [-0.5, 0, 0.5], rotation: [0, 0, 0] },
+  {
+    asset_id: "light",
+    position: [-1.25, 1, -0.75],
+    rotation: [0, Math.PI / 2, 0],
+    scale: [0.75, 0.75, 0.75],
+  },
 ];
 
 const CALM_LAYOUT: AssetData[] = [
@@ -49,6 +55,12 @@ const CALM_LAYOUT: AssetData[] = [
   { asset_id: "bed2", position: [0.5, 0.25, -0.75], rotation: [0, 0, 0] },
   { asset_id: "lamp2", position: [-0.2, 0.5, -1], rotation: [0, 0, 0] },
   { asset_id: "rug2", position: [0.5, 0, -0.25], rotation: [0, 0, 0] },
+  {
+    asset_id: "light",
+    position: [-1.25, 1, -0.75],
+    rotation: [0, Math.PI / 2, 0],
+    scale: [0.75, 0.75, 0.75],
+  },
 ];
 const ENERGETIC_LAYOUT: AssetData[] = [
   {
@@ -71,6 +83,12 @@ const ENERGETIC_LAYOUT: AssetData[] = [
     scale: [1.2, 1.2, 1.2],
   },
   { asset_id: "lamp3", position: [-1, 0.5, 1], rotation: [0, 0, 0] },
+  {
+    asset_id: "light",
+    position: [-1.25, 1, -0.75],
+    rotation: [0, Math.PI / 2, 0],
+    scale: [0.75, 0.75, 0.75],
+  },
 ];
 
 export function Room({ onBack, layoutId, explanation }: RoomProps) {
@@ -118,8 +136,8 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
     <div style={{ width: "100vw", height: "100vh", background: "#1a1a1a" }}>
       <Canvas shadows camera={{ position: [2.5, 2.5, 2.5], fov: 50 }}>
         {/* Basic Lighting (Make this dynamic later) */}
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
+        <ambientLight intensity={0.1} />
+        <directionalLight position={[1, 1, 1]} intensity={5} castShadow />
 
         <Suspense fallback={null}>
           {/* The Room Floor */}
@@ -129,13 +147,13 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
             receiveShadow
           >
             <planeGeometry args={[2.5, 2.5]} />
-            <meshStandardMaterial color="#d3d1d1" />
+            <meshStandardMaterial color="#807870" />
           </mesh>
 
           {/* Back Walls */}
           <mesh rotation={[0, 0, 0]} position={[0, 0.74, -1.25]} receiveShadow>
             <planeGeometry args={[2.5, 1.5]} />
-            <meshStandardMaterial color="#f0f0f0" />
+            <meshStandardMaterial color="#807870" />
           </mesh>
           <mesh
             rotation={[0, Math.PI / 2, 0]}
@@ -143,7 +161,7 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
             receiveShadow
           >
             <planeGeometry args={[2.5, 1.5]} />
-            <meshStandardMaterial color="#f0f0f0" />
+            <meshStandardMaterial color="#807870" />
           </mesh>
 
           {/* Render the Layout Array */}
