@@ -4,6 +4,8 @@ import json
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from typing import Literal
 app = FastAPI()
 
 app.add_middleware(
@@ -22,32 +24,51 @@ app.add_middleware(
 load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
+# Define the data models
 
+class Preferences(BaseModel):
+    productivityGoal: Literal["Focused", "Creative"] = Field(..., description="Focused or Creative")
+    mood: Literal["Calm", "Energetic"] = Field(..., description="Calm or Energetic")
+    lighting: Literal["Warm", "Neutral", "Cool"] = Field(..., description="Warm, Neutral,or Cool")
 
-# 1. Define the Personality (This could eventually come from a user input/form)
-user_personality = "I am really shy"
+class IntakeRequest(BaseModel):
+    preferences: Preferences
+
+class LayoutResponse(BaseModel):
+    layoutId: str
+    explanation: str
+
+def build_user_personality(p: Preferences) -> str:
+    return (
+        f"Between being focused and creative, my productivity style is {p.productivityGoal}. "
+        f"Between being calm and energetic, my energy level is {p.mood}. "
+        f"And I prefer {p.lighting} lighting in my workspace."
+    )
 
 # 2. The Setup
 system_instruction = """
 You are a 3D Layout Assistant for the 'DecideRoom' app. 
-You must analyze the user's personality and pick exactly one of these 3D layouts:
+You must analyze the user's personality and preferences to pick exactly one of these 3D layouts:
 
-Layout 'energetic': 'Kinetic Studio' (Creative, Orange/Green, curved shapes, movement)
-Layout 'calm': 'Grounded Retreat' (Calm, Wood tones, low profile, neutrals)
-Layout 'sample': 'Balanced Standard' (Practical, symmetrical, generic pieces)
+Energetic, Calm, or Sample.
 
-Output ONLY a JSON object: {"layoutId": "energetic", "explanation": "one sentence reasoning"}
+Layount 1: "Energetic". Sometimes called the 'Kinetic Studio' (Creative, Orange/Green, curved shapes, movement)
+Layout 2: 'Calm'. Sometimes called the 'Grounded Retreat' (Calm, Wood tones, low profile, neutrals)
+Layout 3: 'Sample'. Sometimes called the 'Balanced Standard' (Practical, symmetrical, generic pieces)
+
+Output ONLY a JSON object: {"layoutId": "Energetic", "explanation": "two sentence reasoning"}
 """
 
 @app.post("/generate-room")
-async def generate_room(user_personality=user_personality, system_instruction=system_instruction):
+async def generate_room(payload: IntakeRequest) -> LayoutResponse:
+  
     # model = genai.GenerativeModel('gemini-1.5-flash')
     
     # 3. Call Gemini
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         config={'system_instruction': system_instruction},
-        contents=user_personality
+        contents=build_user_personality(payload.preferences)
     )
 
 # 4. Use the Result
