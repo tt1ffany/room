@@ -72,6 +72,7 @@ export default function App() {
           >
             {preferences && (
               <Room
+                preferences={preferences}
                 layoutId={layoutId}
                 explanation={explanation}
                 onBack={handleBack}
