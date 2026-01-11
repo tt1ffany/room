@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import Literal
+from typing import List, Literal, Optional, Tuple
+
 app = FastAPI()
 
 app.add_middleware(
@@ -90,3 +91,72 @@ async def generate_room(payload: IntakeRequest) -> LayoutResponse:
     
 # except Exception as e:
 #     print(f"Error parsing Gemini's choice: {e}")
+
+
+# ---------- Shuffle models ----------
+
+Vec3 = Tuple[float, float, float]
+
+LayoutId = Literal["Energetic", "Calm", "Sample"]
+
+class AssetPlacement(BaseModel):
+    asset_id: str
+    position: Vec3
+    rotation: Vec3
+    scale: Optional[Vec3] = None
+
+class ShuffleRequest(BaseModel):
+    layoutId: LayoutId
+    arrange: List[AssetPlacement]
+
+class ShuffleResponse(BaseModel):
+    arrange: List[AssetPlacement]
+
+
+def build_shuffle_prompt(layout_id: str, arrange: List[AssetPlacement]) -> str:
+    arrange_json = json.dumps([a.model_dump() for a in arrange])
+
+    return f"""
+Return ONLY valid JSON. No markdown. No commentary.
+
+You are asked to rearrange furniture in a virtual room.
+You must stay in the same layout style: "{layout_id}".
+
+Output type:
+[
+  {{ "asset_id": string, "position": [number, number, number], "rotation": [number, number, number], "scale": [number, number, number] | null }}
+]
+
+Rules:
+- all assets MUST stay within the room bounds: x in [-1, 1], z in [-1, 1]
+- assets can not be in contact with each other, must be as far apart as possible within the room bounds.
+- Keep the exact same items (same asset_id set and same array length).
+- Do NOT change any asset_id values.
+- Only change position[x,z] and rotation[y]. Keep position[y] the same as input.
+- rotation[y] must be one of: 0, 1.57079632679, 3.14159265359, 4.71238898038
+- If an item has "scale", keep scale EXACTLY the same as input.
+- Keep items at least 0.25 units apart (approx).
+- keep the chair and desk assets near each other in every arrangement and must have the same rotation[y] output value.
+
+Input arrange JSON:
+{arrange_json}
+""".strip()
+
+@app.post("/shuffle-arrangement")
+async def shuffle_arrangment(request: ShuffleRequest) -> ShuffleResponse    :
+
+    response = client.models.generate_content(
+        model="gemini-3-pro-preview",
+        contents=build_shuffle_prompt(request.layoutId, request.arrange)
+    )
+
+
+    clean_json = (response.text or "").replace("```json", "").replace("```", "").strip()
+    new_arrange_raw = json.loads(clean_json)
+
+    new_arrange = [AssetPlacement(**item) for item in new_arrange_raw]
+
+    return ShuffleResponse(arrange=new_arrange)
+
+
+
