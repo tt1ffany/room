@@ -74,7 +74,7 @@ const ENERGETIC_LAYOUT: AssetData[] = [
   { asset_id: "lamp3", position: [-1, 0.5, 1], rotation: [0, 0, 0] },
 ];
 
-export function Room({ preferences,onBack, layoutId, explanation }: RoomProps) {
+export function Room({ preferences, onBack, layoutId, explanation }: RoomProps) {
   const [timeOfDay, setTimeOfDay] = useState<'day' | 'night'>('day');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const layout =
@@ -100,6 +100,35 @@ export function Room({ preferences,onBack, layoutId, explanation }: RoomProps) {
     }, 3500); // Show info for 3.5 seconds
     return () => clearTimeout(timer);
   }, []);
+
+  console.log("Using layoutId:", layoutId);
+  console.log("Layout data:", layout);
+
+  // State to manage arrangement (for future shuffling)
+  const [arrange, setArrangement] = useState<AssetData[]>(layout);
+  React.useEffect(() => {
+    setArrangement(layout);
+  }, [layoutId]);
+
+  console.log("Current arrangement:", arrange);
+
+  const shuffle = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/shuffle-arrangement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          layoutId: layoutId,
+          arrange: arrange,
+        }),
+      });
+      const data: { arrange: AssetData[] } = await res.json();
+      console.log("Received shuffled arrange:", data.arrange);
+      setArrangement(data.arrange);
+    } catch (error) {
+      console.error("Error fetching shuffled arrangement:", error);
+    }
+  };
 
   return (
     <div className="relative min-h-screen w-full flex">
