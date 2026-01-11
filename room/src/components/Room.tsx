@@ -4,6 +4,9 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
 import { Model } from "./Model";
 import { AssetData } from "./AssetLibrary";
+import { Sidebar } from "./Sidebar";
+import { Button } from "./ui/button";
+import { Menu } from "lucide-react";
 
 interface RoomPreferences {
   productivityGoal: string;
@@ -70,13 +73,35 @@ const ENERGETIC_LAYOUT: AssetData[] = [
   { asset_id: "lamp3", position: [-1, 0.5, 1], rotation: [0, 0, 0] },
 ];
 
-export function Room({ layoutId, explanation, onBack }: RoomProps) {
+export function Room({ preferences, onBack, layoutId, explanation }: RoomProps) {
+  const [timeOfDay, setTimeOfDay] = useState<'morning' | 'evening' | 'night'>('morning');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const layout =
     layoutId === "Calm"
       ? CALM_LAYOUT
       : layoutId === "Energetic"
       ? ENERGETIC_LAYOUT
       : SAMPLE_LAYOUT;
+
+  async function askGemini() {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/generate-room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // body: JSON.stringify({ user_personality: "..." }) // if you add this
+      });
+      console.log("status:", res.status);
+
+      const data = await res.json();
+      console.log("Gemini Response:", data);
+
+      if (data.layoutId === "calm") setLayout(CALM_LAYOUT);
+      else if (data.layoutId === "energetic") setLayout(ENERGETIC_LAYOUT);
+      else setLayout(SAMPLE_LAYOUT);
+    } catch (err) {
+      console.error("Fetch failed:", err);
+    }
+  }
 
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#1a1a1a" }}>
@@ -146,12 +171,34 @@ export function Room({ layoutId, explanation, onBack }: RoomProps) {
           fontFamily: "sans-serif",
         }}
       >
-        <h2>Room (Debug Mode)</h2>
-        <p>Assets Loaded: {layout.length}</p>
+        <h2>My Room</h2>
         <button onClick={onBack}>Go Back To Start</button>
         <p>Selected Layout: {layoutId}</p>
         {explanation && <p style={{ maxWidth: 360 }}>{explanation}</p>}
+        {/* <p>Assets Loaded: {layout.length}</p> */}
       </div>
+
+      {/* Menu Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`absolute top-4 left-4 z-30 shadow-lg transition-colors ${timeOfDay === 'night'
+          ? 'bg-slate-800/90 hover:bg-slate-700/90 text-white'
+          : 'bg-white/90 hover:bg-amber-100/60'
+          }`}
+        onClick={() => setIsSidebarOpen(true)}
+      >
+        <Menu className="h-6 w-6" />
+      </Button>
+
+      {/* Sidebar (Menu) */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        timeOfDay={timeOfDay}
+        onTimeChange={setTimeOfDay}
+        onShuffle={askGemini}
+      />
     </div>
   );
 }
