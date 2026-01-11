@@ -11,10 +11,14 @@ import { Menu } from "lucide-react";
 interface RoomPreferences {
   productivityGoal: string;
   mood: string;
+  lighting: string;
 }
 
+type LayoutId = "Energetic" | "Calm" | "Sample";
+
 interface RoomProps {
-  preferences: RoomPreferences;
+  layoutId: LayoutId;
+  explanation?: string;
   onBack: () => void;
 }
 
@@ -69,10 +73,15 @@ const ENERGETIC_LAYOUT: AssetData[] = [
   { asset_id: "lamp3", position: [-1, 0.5, 1], rotation: [0, 0, 0] },
 ];
 
-export function Room({ preferences, onBack }: RoomProps) {
-  const [layout, setLayout] = useState<AssetData[]>(CALM_LAYOUT);
+export function Room({ preferences, onBack, layoutId, explanation }: RoomProps) {
   const [timeOfDay, setTimeOfDay] = useState<'morning' | 'evening' | 'night'>('morning');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const layout =
+    layoutId === "Calm"
+      ? CALM_LAYOUT
+      : layoutId === "Energetic"
+      ? ENERGETIC_LAYOUT
+      : SAMPLE_LAYOUT;
 
   async function askGemini() {
     try {
@@ -163,8 +172,10 @@ export function Room({ preferences, onBack }: RoomProps) {
         }}
       >
         <h2>My Room</h2>
+        <button onClick={onBack}>Go Back To Start</button>
+        <p>Selected Layout: {layoutId}</p>
+        {explanation && <p style={{ maxWidth: 360 }}>{explanation}</p>}
         {/* <p>Assets Loaded: {layout.length}</p> */}
-        <button>Go Back To Start</button>
       </div>
 
       {/* Menu Button */}

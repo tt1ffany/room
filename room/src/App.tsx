@@ -1,21 +1,47 @@
-import './App.css';
+import "./App.css";
 import { useState } from "react";
-import { MainMenu } from './components/MainMenu'
-import { Room } from './components/Room';
+import { MainMenu } from "./components/MainMenu";
+import { Room } from "./components/Room";
 import { AnimatePresence, motion } from "motion/react";
 
 interface RoomPreferences {
   productivityGoal: string;
   mood: string;
+  lighting: string;
 }
+
+type LayoutId = "Energetic" | "Calm" | "Sample";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<"menu" | "room">("menu");
   const [preferences, setPreferences] = useState<RoomPreferences | null>(null);
 
-  const handleComplete = (prefs: RoomPreferences) => {
+  const [layoutId, setLayoutId] = useState<LayoutId>("Sample");
+  const [explanation, setExplanation] = useState<string>("");
+
+  const handleComplete = async (prefs: RoomPreferences) => {
     setPreferences(prefs);
     setCurrentView("room");
+
+    try {
+      const res = await fetch("http://localhost:8000/generate-room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          preferences: prefs,
+        }),
+      });
+
+      const data: { layoutId: LayoutId; explanation?: string } =
+        await res.json();
+
+      setLayoutId(data.layoutId);
+      setExplanation(data.explanation ?? "");
+      console.log("Received layoutId:", data.layoutId);
+      console.log("Received explanation:", data.explanation);
+    } catch (error) {
+      console.error("Error fetching room layout:", error);
+    }
   };
 
   const handleBack = () => {
@@ -44,7 +70,13 @@ export default function App() {
             transition={{ duration: 0.8, ease: "easeInOut" }}
             className="absolute inset-0"
           >
-            {preferences && <Room preferences={preferences} onBack={handleBack} />}
+            {preferences && (
+              <Room
+                layoutId={layoutId}
+                explanation={explanation}
+                onBack={handleBack}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
