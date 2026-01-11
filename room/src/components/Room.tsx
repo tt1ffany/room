@@ -74,7 +74,9 @@ const ENERGETIC_LAYOUT: AssetData[] = [
 ];
 
 export function Room({ onBack, layoutId, explanation }: RoomProps) {
-  const [timeOfDay, setTimeOfDay] = useState<'morning' | 'evening' | 'night'>('morning');
+  const [timeOfDay, setTimeOfDay] = useState<"morning" | "evening" | "night">(
+    "morning"
+  );
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const layout =
     layoutId === "Calm"
@@ -82,6 +84,35 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
       : layoutId === "Energetic"
       ? ENERGETIC_LAYOUT
       : SAMPLE_LAYOUT;
+
+  console.log("Using layoutId:", layoutId);
+  console.log("Layout data:", layout);
+
+  // State to manage arrangement (for future shuffling)
+  const [arrange, setArrangement] = useState<AssetData[]>(layout);
+  React.useEffect(() => {
+    setArrangement(layout);
+  }, [layoutId]);
+
+  console.log("Current arrangement:", arrange);
+
+  const shuffle = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/shuffle-arrangement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          layoutId: layoutId,
+          arrange: arrange,
+        }),
+      });
+      const data: { arrange: AssetData[] } = await res.json();
+      console.log("Received shuffled arrange:", data.arrange);
+      setArrangement(data.arrange);
+    } catch (error) {
+      console.error("Error fetching shuffled arrangement:", error);
+    }
+  };
 
   return (
     <div style={{ width: "100vw", height: "100vh", background: "#1a1a1a" }}>
@@ -117,7 +148,7 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
 
           {/* Render the Layout Array */}
           <group>
-            {layout.map((item, index) => (
+            {arrange.map((item, index) => (
               <Model
                 key={index}
                 id={item.asset_id}
@@ -162,10 +193,11 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
       <Button
         variant="ghost"
         size="icon"
-        className={`absolute top-4 left-4 z-30 shadow-lg transition-colors ${timeOfDay === 'night'
-          ? 'bg-slate-800/90 hover:bg-slate-700/90 text-white'
-          : 'bg-white/90 hover:bg-amber-100/60'
-          }`}
+        className={`absolute top-4 left-4 z-30 shadow-lg transition-colors ${
+          timeOfDay === "night"
+            ? "bg-slate-800/90 hover:bg-slate-700/90 text-white"
+            : "bg-white/90 hover:bg-amber-100/60"
+        }`}
         onClick={() => setIsSidebarOpen(true)}
       >
         <Menu className="h-6 w-6" />
@@ -177,7 +209,7 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
         onClose={() => setIsSidebarOpen(false)}
         timeOfDay={timeOfDay}
         onTimeChange={setTimeOfDay}
-        // onShuffle={askGemini}
+        onShuffle={shuffle}
       />
     </div>
   );
