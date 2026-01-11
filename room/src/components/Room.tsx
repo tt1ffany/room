@@ -157,9 +157,9 @@ export function Room({ onBack, layoutId, explanation }: RoomProps) {
           onMouseEnter={() => setShowInfo(true)}
           onMouseLeave={() => setShowInfo(false)}
           className="absolute top-4 right-4 w-8 h-8 rounded-full
-             bg-black/60 text-white text-sm font-semibold
+             bg-white/90 text-sm font-semibold
              flex items-center justify-center
-             hover:bg-white/80 transition hover:text-black"
+             hover:bg-black/50 transition hover:text-white"
         >
           i
         </button>
